@@ -1,6 +1,14 @@
 venv/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
 .DS_Store
+*.log
+
 chroma_db/
+data/chunks.json
 data/*.pdf
-data/*.json
+data/comparison_results.json
+data/evaluation_results.json
+.kluster/

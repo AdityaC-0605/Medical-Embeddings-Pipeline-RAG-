@@ -1,36 +1,24 @@
-# pdf_to_chunks.py
-
 import os
 import re
 import json
 import fitz
 from tqdm import tqdm
-from config import CHUNK_SIZE, CHUNK_OVERLAP
+from config import CHUNK_SIZE, CHUNK_OVERLAP, DATA_DIR, CHUNKS_FILE, DOMAINS
+from logger import setup_logger
 
-REFERENCES_PATTERN = re.compile(r'^\s*References\s*$', re.MULTILINE)
+logger = setup_logger(__name__)
+
+REFERENCES_PATTERN = re.compile(r"^\s*References\s*$", re.MULTILINE)
 
 fitz.TOOLS.mupdf_display_errors(False)
 
-DATA_DIR = "data"
-OUTPUT_FILE = "data/chunks.json"
-
 
 def clean_text(text):
-    # Remove emails
-    text = re.sub(r'\S+@\S+', '', text)
-
-    # Remove DOIs
-    text = re.sub(r'doi:\S+', '', text, flags=re.IGNORECASE)
-
-    # Remove URLs
-    text = re.sub(r'http\S+', '', text)
-
-    # Remove citation numbers [12]
-    text = re.sub(r'\[\d+\]', '', text)
-
-    # Remove multiple spaces
-    text = re.sub(r'\s+', ' ', text)
-
+    text = re.sub(r"\S+@\S+", "", text)
+    text = re.sub(r"doi:\S+", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"http\S+", "", text)
+    text = re.sub(r"\[\d+\]", "", text)
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 
@@ -38,51 +26,43 @@ def extract_text_from_pdf(pdf_path):
     try:
         with fitz.open(pdf_path, filetype="pdf") as doc:
             text = ""
-
             for page in doc:
                 page_text = page.get_text("text")
-
-                # Stop before references section (match standalone heading only)
                 if REFERENCES_PATTERN.search(page_text):
-                    # Keep text before the "References" heading on this page
                     match = REFERENCES_PATTERN.search(page_text)
-                    text += page_text[:match.start()]
+                    text += page_text[: match.start()]
                     break
-
                 text += page_text
-
             return text
-
     except Exception as e:
-        print(f"Error reading {pdf_path}: {e}")
+        logger.error(f"Error reading {pdf_path}: {e}")
         return ""
 
 
 def chunk_text(text, chunk_size, overlap):
-    # Split into sentences first for cleaner boundaries
-    sentences = re.split(r'(?<=[.!?])\s+', text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
     chunks = []
     current_chunk = ""
 
     for sentence in sentences:
-        # If adding this sentence exceeds chunk_size, save current and start new
         if len(current_chunk) + len(sentence) > chunk_size and current_chunk:
             chunk = current_chunk.strip()
-            if len(chunk) > 300 and not chunk.isnumeric():
+            if len(chunk) > 100 and not chunk.isnumeric():
                 chunks.append(chunk)
 
-            # Keep overlap by finding sentences that fit within overlap size
-            overlap_text = current_chunk[-overlap:] if len(current_chunk) > overlap else current_chunk
-            # Start new chunk from the last sentence boundary within overlap
-            last_break = overlap_text.rfind('. ')
+            overlap_text = (
+                current_chunk[-overlap:]
+                if len(current_chunk) > overlap
+                else current_chunk
+            )
+            last_break = overlap_text.rfind(". ")
             if last_break != -1:
-                current_chunk = overlap_text[last_break + 2:] + " " + sentence
+                current_chunk = overlap_text[last_break + 2 :] + " " + sentence
             else:
                 current_chunk = sentence
         else:
             current_chunk = (current_chunk + " " + sentence).strip()
 
-    # Don't forget the last chunk
     chunk = current_chunk.strip()
     if len(chunk) > 300 and not chunk.isnumeric():
         chunks.append(chunk)
@@ -90,42 +70,82 @@ def chunk_text(text, chunk_size, overlap):
     return chunks
 
 
-def main():
-    all_chunks = []
+def get_existing_chunks():
+    if os.path.exists(CHUNKS_FILE):
+        try:
+            with open(CHUNKS_FILE, "r") as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            logger.warning("Invalid chunks.json, starting fresh")
+            return []
+    return []
 
-    for domain in ["cardiac", "gynae"]:
+
+def get_processed_files(existing_chunks):
+    return set(chunk.get("source") for chunk in existing_chunks if "source" in chunk)
+
+
+def process_pdfs(incremental=True):
+    existing_chunks = get_existing_chunks() if incremental else []
+    processed_files = get_processed_files(existing_chunks) if incremental else set()
+
+    all_chunks = existing_chunks.copy()
+    new_files_count = 0
+
+    for domain in DOMAINS:
         folder_path = os.path.join(DATA_DIR, domain)
         if not os.path.exists(folder_path):
+            logger.warning(f"Domain folder not found: {folder_path}")
             continue
 
         pdf_files = [f for f in os.listdir(folder_path) if f.endswith(".pdf")]
+        logger.info(f"{domain.upper()} — {len(pdf_files)} PDFs found")
 
-        print(f"\n📂 {domain.upper()} — {len(pdf_files)} PDFs")
+        for pdf_file in tqdm(pdf_files, desc=f"Processing {domain}"):
+            if incremental and pdf_file in processed_files:
+                logger.debug(f"Skipping already processed: {pdf_file}")
+                continue
 
-        for pdf_file in tqdm(pdf_files):
             pdf_path = os.path.join(folder_path, pdf_file)
-
             text = extract_text_from_pdf(pdf_path)
             if not text:
+                logger.warning(f"No text extracted from {pdf_file}")
                 continue
 
             text = clean_text(text)
             chunks = chunk_text(text, CHUNK_SIZE, CHUNK_OVERLAP)
 
             for chunk in chunks:
-                all_chunks.append({
-                    "text": chunk,
-                    "source": pdf_file,
-                    "domain": domain
-                })
+                all_chunks.append({"text": chunk, "source": pdf_file, "domain": domain})
 
-    os.makedirs("data", exist_ok=True)
+            new_files_count += 1
+            logger.info(f"Processed: {pdf_file} ({len(chunks)} chunks)")
 
-    with open(OUTPUT_FILE, "w") as f:
+    return all_chunks, new_files_count
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Convert PDFs to chunks")
+    parser.add_argument(
+        "--full", action="store_true", help="Process all PDFs (ignore incremental mode)"
+    )
+    args = parser.parse_args()
+
+    incremental = not args.full
+
+    logger.info(f"Starting PDF processing (incremental={incremental})")
+
+    all_chunks, new_files_count = process_pdfs(incremental=incremental)
+
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    with open(CHUNKS_FILE, "w") as f:
         json.dump(all_chunks, f, indent=2)
 
-    print("\n✅ Done.")
-    print(f"Saved {len(all_chunks)} clean chunks to {OUTPUT_FILE}")
+    logger.info(f"Done. Processed {new_files_count} new files.")
+    logger.info(f"Saved {len(all_chunks)} total chunks to {CHUNKS_FILE}")
 
 
 if __name__ == "__main__":
