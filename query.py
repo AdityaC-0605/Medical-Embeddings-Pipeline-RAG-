@@ -7,15 +7,19 @@ from logger import setup_logger
 logger = setup_logger(__name__)
 
 
-def query_database(query_text, model, collection, n_results=5):
+def query_database(query_text, model, collection, domain_filter=None, n_results=5):
     query_instruction = "Represent this medical question for retrieval: "
 
     query_embedding = model.encode(
         query_instruction + query_text, normalize_embeddings=True
     )
 
+    where_clause = {"domain": domain_filter} if domain_filter else None
+
     results = collection.query(
-        query_embeddings=[query_embedding.tolist()], n_results=n_results
+        query_embeddings=[query_embedding.tolist()], 
+        n_results=n_results,
+        where=where_clause
     )
 
     return results
@@ -48,7 +52,7 @@ def main():
     print("Type 'quit' to exit.\n")
 
     while True:
-        user_question = input("Question: ")
+        user_question = input("\nQuestion: ")
 
         if user_question.lower() == "quit":
             logger.info("User exited query interface")
@@ -57,7 +61,10 @@ def main():
         if not user_question.strip():
             continue
 
-        results = query_database(user_question, model, collection)
+        domain_filter_input = input("Domain filter (Press Enter for all): ")
+        domain_filter = domain_filter_input.strip().lower() if domain_filter_input.strip() else None
+
+        results = query_database(user_question, model, collection, domain_filter)
 
         if not results["documents"] or not results["documents"][0]:
             print("No results found.")
