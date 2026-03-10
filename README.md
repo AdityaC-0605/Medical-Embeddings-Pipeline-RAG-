@@ -1,19 +1,19 @@
 # Medical Embeddings Pipeline
 
-A lightweight Python-based retrieval pipeline designed for medical documents. This project extracts, cleans, chunks, and creates dense vector embeddings for medical PDFs, subsequently storing them in a local vector database ([ChromaDB](https://docs.trychroma.com/)) for quick retrieval-augmented generation (RAG) queries.
+A lightweight Python pipeline for processing medical documents. It extracts, cleans, and chunks text from medical PDFs, then generates dense vector embeddings. These embeddings are stored in a local vector database ([ChromaDB](https://docs.trychroma.com)) for efficient retrieval-augmented generation (RAG) queries.
 
 ## 🚀 Features
 
-- **Robust PDF Extraction:** Uses `PyMuPDF` to read text, specifically ignoring references and citations.
-- **Smart Text Chunking:** Splits text by sentences sequentially, cleanly enforcing limits (default 900 chunk size with 120 character overlap).
-- **Sentence Transformers:** Employs the `BAAI/bge-large-en-v1.5` embeddings model, optimized with instruction prefixes for retrieval/querying.
-- **Apple Silicon (MPS) Hardware Acceleration:** Auto-detects and utilizes `torch.backends.mps` for faster processing on M-series Macs if available.
-- **Persistent Local DB:** Stores collections efficiently offline inside a persistent `chroma_db` folder.
-- **Interactive Query Engine:** Provides a simple CLI to fetch the top contextually relevant documents based on semantic similarity.
-- **Web UI:** Streamlit-based interface for easier querying with domain filtering.
-- **Incremental Processing:** Only processes new PDFs, skipping already processed files.
+- **Robust PDF Extraction:** Uses `PyMuPDF` to read text, intelligently ignoring references and citations.
+- **Smart Text Chunking:** Splits text sequentially by sentences, enforcing limits with a default chunk size of 900 characters and a 120-character overlap.
+- **Sentence Transformers:** Employs the `BAAI/bge-large-en-v1.5` model, optimized with instruction prefixes for retrieval and querying.
+- **Apple Silicon (MPS) Hardware Acceleration:** Auto-detects and uses `torch.backends.mps` for faster processing on M-series Macs, if available.
+- **Persistent Local DB:** Stores collections efficiently offline in a dedicated `chroma_db` folder.
+- **Interactive Query Engine:** Offers a simple CLI to retrieve the top semantically similar documents.
+- **Web UI:** A Streamlit-based interface for easier querying and domain filtering.
+- **Incremental Processing:** Processes only new PDFs, skipping those already handled.
 - **Duplicate Detection:** Prevents duplicate embeddings using SHA256 hashing.
-- **Evaluation Metrics:** Built-in evaluation script for measuring retrieval performance.
+- **Evaluation Metrics:** Includes a built-in script for measuring retrieval performance.
 
 ## 📂 Project Structure
 
@@ -37,7 +37,7 @@ medical_embeddings_project/
 
 ## 🛠️ Installation & Setup
 
-1. **Clone/Navigate to the directory**:
+1. **Clone or navigate to the project directory**:
    ```bash
    cd medical_embeddings_project
    ```
@@ -56,25 +56,25 @@ medical_embeddings_project/
 ## ⚙️ How to Run
 
 ### Step 1: Add your documents
-Place your medical `.pdf` files into `data/cardiac/` or `data/gynae/` directories.
+Place your medical `.pdf` files into the `data/cardiac/` or `data/gynae/` directories.
 
 ### Step 2: Extract and Chunk Text
-Extract text, clean noise (URLs, DOIs, excessive whitespaces) and chunk the sentences:
+This step extracts text, cleans noise (like URLs and DOIs), and chunks the sentences:
 ```bash
-# Incremental mode (skip already processed files)
+# Incremental mode (skips already processed files)
 python pdf_to_chunks.py
 
-# Full reprocessing (process all PDFs)
+# Full reprocessing (processes all PDFs)
 python pdf_to_chunks.py --full
 ```
 
-### Step 3: Embed and Store chunks into ChromaDB
+### Step 3: Embed and Store Chunks into ChromaDB
 Generate the embedding vectors and ingest them into ChromaDB:
 ```bash
 python embed_and_store.py
 ```
-- Automatically detects duplicates using SHA256 hashing
-- Only adds new unique chunks to the database
+- Automatically detects duplicates using SHA256 hashing.
+- Only adds new, unique chunks to the database.
 
 ### Step 4: Query the Embeddings
 
@@ -98,16 +98,16 @@ python evaluate.py
 All settings can be customized in `config.py`:
 
 | Parameter | Default | Description |
-|-----------|---------|-------------|
-| `EMBED_MODEL` | BAAI/bge-large-en-v1.5 | Sentence transformer model |
-| `CHUNK_SIZE` | 900 | Maximum chunk size in characters |
-| `CHUNK_OVERLAP` | 120 | Overlap between chunks |
-| `EMBED_BATCH_SIZE` | 32 | Batch size for embedding generation |
-| `DOMAINS` | [cardiac, gynae] | Supported medical domains |
+|---|---|---|
+| `EMBED_MODEL` | BAAI/bge-large-en-v1.5 | Sentence transformer model used for embeddings. |
+| `CHUNK_SIZE` | 900 | Maximum chunk size in characters. |
+| `CHUNK_OVERLAP` | 120 | Overlap between consecutive chunks in characters. |
+| `EMBED_BATCH_SIZE` | 32 | Batch size for generating embeddings. |
+| `DOMAINS` | [cardiac, gynae] | Supported medical domains. |
 
 ### Environment Variables
 
-You can also configure paths via environment variables:
+You can also configure paths using environment variables:
 ```bash
 export DATA_DIR=data
 export CHROMA_PATH=chroma_db
@@ -119,7 +119,7 @@ export LOG_FILE=app.log
 ## 📊 Evaluation
 
 The evaluation script uses predefined queries with ground truth sources to compute:
-- **Recall@K**: Fraction of relevant documents retrieved
-- **Precision@K**: Accuracy of retrieved documents
-- **MRR**: Mean Reciprocal Rank
-- **NDCG**: Normalized Discounted Cumulative Gain
+- **Recall@K**: The fraction of relevant documents retrieved within the top K results.
+- **Precision@K**: The accuracy of the documents retrieved within the top K results.
+- **MRR**: Mean Reciprocal Rank, measuring the position of the first relevant document.
+- **NDCG**: Normalized Discounted Cumulative Gain, assessing the ranking quality.
