@@ -6,8 +6,6 @@ import torch
 from sentence_transformers import SentenceTransformer
 from config import (
     EMBED_MODEL,
-    CHUNK_SIZE,
-    CHUNK_OVERLAP,
     COLLECTION_NAME,
     CHROMA_PATH,
     CHUNKS_FILE,
@@ -101,7 +99,8 @@ def main():
     )
 
     existing_hashes = get_existing_document_hashes(collection)
-    logger.info(f"Found {len(existing_hashes)} existing documents in collection")
+    existing_count = collection.count()
+    logger.info(f"Found {existing_count} existing documents in collection")
 
     new_chunks = deduplicate_chunks(chunks, existing_hashes)
     logger.info(f"New unique chunks to embed: {len(new_chunks)}")
@@ -121,7 +120,7 @@ def main():
         show_progress_bar=True,
     )
 
-    ids = [str(i) for i in range(len(new_chunks))]
+    ids = [str(existing_count + i) for i in range(len(new_chunks))]
 
     batch_size = 1000
     total = len(new_chunks)
