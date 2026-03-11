@@ -18,8 +18,21 @@ def clean_text(text):
     text = re.sub(r"doi:\S+", "", text, flags=re.IGNORECASE)
     text = re.sub(r"http\S+", "", text)
     text = re.sub(r"\[\d+\]", "", text)
+    text = re.sub(r"[.]{3,}", " ", text)
+    text = re.sub(r"[-]{3,}", " ", text)
+    text = re.sub(r"[_]{3,}", " ", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
+
+
+def is_quality_chunk(text, min_length=100):
+    """Check if a chunk has meaningful content (not just dots, dashes, numbers, etc.)"""
+    if len(text) < min_length:
+        return False
+    alpha_chars = sum(1 for c in text if c.isalpha())
+    if len(text) == 0 or alpha_chars / len(text) < 0.3:
+        return False
+    return True
 
 
 def extract_text_from_pdf(pdf_path):
@@ -47,7 +60,7 @@ def chunk_text(text, chunk_size, overlap):
     for sentence in sentences:
         if len(current_chunk) + len(sentence) > chunk_size and current_chunk:
             chunk = current_chunk.strip()
-            if len(chunk) > 100 and not chunk.isnumeric():
+            if is_quality_chunk(chunk, min_length=100):
                 chunks.append(chunk)
 
             overlap_text = (
@@ -64,7 +77,7 @@ def chunk_text(text, chunk_size, overlap):
             current_chunk = (current_chunk + " " + sentence).strip()
 
     chunk = current_chunk.strip()
-    if len(chunk) > 300 and not chunk.isnumeric():
+    if is_quality_chunk(chunk, min_length=300):
         chunks.append(chunk)
 
     return chunks
