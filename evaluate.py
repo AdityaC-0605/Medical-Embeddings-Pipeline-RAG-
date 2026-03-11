@@ -1,4 +1,5 @@
 import chromadb
+import os
 import torch
 import json
 import math
@@ -185,10 +186,12 @@ def main():
     print("Per-Domain Metrics:")
     print("-" * 60)
 
+    domain_results = {}
     for domain in DOMAINS:
         domain_metrics = evaluate_retrieval(
             model, collection, GROUND_TRUTH, domain=domain, k=5
         )
+        domain_results[domain] = domain_metrics
         print(f"\n{domain.upper()}:")
         print(f"  Recall@5:    {domain_metrics['recall_at_k']:.4f}")
         print(f"  Precision@5: {domain_metrics['precision_at_k']:.4f}")
@@ -198,20 +201,13 @@ def main():
     print("\n" + "=" * 60)
 
     output_file = "data/evaluation_results.json"
-    import os
-
     os.makedirs("data", exist_ok=True)
 
     with open(output_file, "w") as f:
         json.dump(
             {
                 "overall": all_metrics,
-                "domains": {
-                    domain: evaluate_retrieval(
-                        model, collection, GROUND_TRUTH, domain=domain, k=5
-                    )
-                    for domain in DOMAINS
-                },
+                "domains": domain_results,
             },
             f,
             indent=2,
