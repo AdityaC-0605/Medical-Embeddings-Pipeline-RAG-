@@ -65,7 +65,7 @@ def main():
             try:
                 count = collection.count(where={"domain": domain})
                 st.metric(domain.capitalize(), count)
-            except:
+            except Exception:
                 st.metric(domain.capitalize(), 0)
 
     query = st.text_input(
