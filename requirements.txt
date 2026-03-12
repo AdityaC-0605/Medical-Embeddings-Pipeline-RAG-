@@ -5,3 +5,5 @@ tqdm>=4.66.0
 numpy<2.0
 torch>=2.2.0
 streamlit>=1.30.0
+requests>=2.31.0
+posthog<3.0.0

@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 
+# Disable ChromaDB telemetry globally to prevent ClientStartEvent/capture() bugs
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 EMBED_MODEL = "BAAI/bge-large-en-v1.5"
 EMBED_DIM = 1024
 
@@ -19,6 +22,13 @@ CHUNKS_FILE = os.getenv("CHUNKS_FILE", "data/chunks.json")
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOG_FILE = os.getenv("LOG_FILE", "app.log")
+
+# LLM Configuration (Ollama)
+LLM_MODEL = os.getenv("LLM_MODEL", "llama3.1:8b")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.3"))
+LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "1024"))
+RAG_TOP_K = int(os.getenv("RAG_TOP_K", "5"))
 
 
 def get_project_root():

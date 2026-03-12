@@ -24,6 +24,7 @@ medical_embeddings_project/
 ├── pdf_to_chunks.py      # Cleans and splits raw PDFs into chunks.json
 ├── embed_and_store.py    # Generates embeddings and stores in Chroma DB
 ├── query.py              # Interactive CLI script for querying the database
+├── chatbot.py            # RAG chatbot (retrieval + LLM answer generation)
 ├── app.py                # Streamlit web UI for querying
 ├── evaluate.py           # Evaluation metrics script
 ├── requirements.txt      # Project dependencies
@@ -78,9 +79,32 @@ python embed_and_store.py
 
 ### Step 4: Query the Embeddings
 
-**CLI Interface:**
+**CLI Interface (retrieval only):**
 ```bash
 python query.py
+```
+
+**RAG Chatbot (retrieval + LLM-generated answers):**
+
+Requires [Ollama](https://ollama.com) running locally:
+```bash
+# Start Ollama (if not already running)
+ollama serve
+
+# Pull a model (first time only)
+ollama pull llama3.1:8b
+
+# Run the chatbot
+python chatbot.py
+
+# With domain filter
+python chatbot.py --domain cardiac
+
+# With a different model
+python chatbot.py --model mistral:7b
+
+# Adjust number of retrieved chunks
+python chatbot.py --top-k 8
 ```
 
 **Web UI (Streamlit):**
@@ -114,6 +138,13 @@ export CHROMA_PATH=chroma_db
 export CHUNKS_FILE=data/chunks.json
 export LOG_LEVEL=INFO
 export LOG_FILE=app.log
+
+# LLM / Chatbot settings
+export LLM_MODEL=llama3.1:8b
+export OLLAMA_BASE_URL=http://localhost:11434
+export LLM_TEMPERATURE=0.3
+export LLM_MAX_TOKENS=1024
+export RAG_TOP_K=5
 ```
 
 ## 📊 Evaluation
