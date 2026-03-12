@@ -16,6 +16,8 @@ EVAL_QUERIES = {
         "What are the risk factors for cardiovascular disease?",
         "How is heart failure managed?",
         "What are the surgical options for cardiac surgery?",
+        "What are the choices for revascularization in diabetes?",
+        "What is the segmental approach to diagnosis of congenital heart disease?",
     ],
     "gynae": [
         "What are the symptoms of PCOS?",
@@ -23,6 +25,11 @@ EVAL_QUERIES = {
         "What are the causes of pre-eclampsia?",
         "What is endometriosis and how is it treated?",
         "What are the Williams obstetrics guidelines?",
+        "What is the practical approach for diagnosis and treatment of von Willebrand disease in pregnancy?",
+        "What is Dewhurst's textbook of obstetrics and gynaecology?",
+        "What is amniotic fluid embolism?",
+        "Who edited the 20th edition of Gynaecology by Ten Teachers?",
+        "What is the WHO's programme of work on sexual and reproductive health and rights?",
     ],
 }
 
@@ -56,6 +63,13 @@ GROUND_TRUTH = {
     "What are the causes of pre-eclampsia?": ["Pre-eclampsia .pdf"],
     "What is endometriosis and how is it treated?": ["endometri.pdf"],
     "What are the Williams obstetrics guidelines?": ["Williams Obstetrics.pdf"],
+    "What are the choices for revascularization in diabetes?": ["Heart Compressed.pdf"],
+    "What is the segmental approach to diagnosis of congenital heart disease?": ["heart1.pdf"],
+    "What is the practical approach for diagnosis and treatment of von Willebrand disease in pregnancy?": ["AJOG PDF Document.pdf"],
+    "What is Dewhurst's textbook of obstetrics and gynaecology?": ["gynaec1.pdf"],
+    "What is amniotic fluid embolism?": ["gynaec2.pdf"],
+    "Who edited the 20th edition of Gynaecology by Ten Teachers?": ["gynaec3.pdf"],
+    "What is the WHO's programme of work on sexual and reproductive health and rights?": ["who.pdf"],
 }
 
 
