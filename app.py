@@ -1,12 +1,24 @@
 import streamlit as st
 import chromadb
 import torch
+import requests
 from sentence_transformers import SentenceTransformer
-from config import EMBED_MODEL, COLLECTION_NAME, CHROMA_PATH, DOMAINS
+from config import (
+    EMBED_MODEL,
+    COLLECTION_NAME,
+    CHROMA_PATH,
+    DOMAINS,
+    OLLAMA_BASE_URL,
+    LLM_MODEL,
+    RAG_TOP_K,
+)
 
-st.set_page_config(page_title="Medical RAG Query", page_icon="🏥", layout="wide")
+st.set_page_config(page_title="Medical RAG Chatbot", page_icon="🏥", layout="wide")
 
 
+# -----------------------------
+# Load model & DB
+# -----------------------------
 @st.cache_resource
 def load_model():
     device = "mps" if torch.backends.mps.is_available() else "cpu"
@@ -19,96 +31,130 @@ def get_collection():
     return client.get_collection(COLLECTION_NAME)
 
 
-def query_database(query_text, model, collection, domain_filter=None, n_results=5):
-    query_instruction = "Represent this medical question for retrieval: "
+# -----------------------------
+# Retrieval
+# -----------------------------
+def retrieve_chunks(query, model, collection, domain=None, k=5):
+    instruction = "Represent this medical question for retrieval: "
+    embedding = model.encode(instruction + query, normalize_embeddings=True)
 
-    query_embedding = model.encode(
-        query_instruction + query_text, normalize_embeddings=True
-    )
-
-    where = {"domain": domain_filter} if domain_filter else None
+    where = {"domain": domain} if domain else None
 
     results = collection.query(
-        query_embeddings=[query_embedding.tolist()],
-        n_results=n_results,
-        where=where if where else None,
-        include=["metadatas", "documents"],
+        query_embeddings=[embedding.tolist()],
+        n_results=k,
+        where=where,
+        include=["documents", "metadatas"],
     )
 
     return results
 
 
-def main():
-    st.title("🏥 Medical RAG Query Interface")
-    st.markdown("Query medical documents using semantic search")
+# -----------------------------
+# Build context
+# -----------------------------
+def build_context(results):
+    context = ""
+    sources = set()
 
+    for i in range(len(results["documents"][0])):
+        chunk = results["documents"][0][i]
+        metadata = results["metadatas"][0][i]
+
+        context += f"\n\n{chunk}"
+        sources.add(f"{metadata.get('domain')} - {metadata.get('source')}")
+
+    return context[:4000], list(sources)
+
+
+# -----------------------------
+# LLM (Ollama)
+# -----------------------------
+def generate_answer(query, context):
+    prompt = f"""
+You are a medical assistant. Answer ONLY from the provided context.
+
+Context:
+{context}
+
+Question:
+{query}
+
+Answer clearly and medically.
+"""
+
+    response = requests.post(
+        f"{OLLAMA_BASE_URL}/api/generate",
+        json={
+            "model": LLM_MODEL,
+            "prompt": prompt,
+            "stream": False,
+        },
+    )
+
+    return response.json()["response"]
+
+
+# -----------------------------
+# UI
+# -----------------------------
+def main():
+    st.title("🏥 Medical RAG Chatbot")
+    st.markdown("Ask medical questions grounded in your documents")
+
+    # Load
     try:
         model, device = load_model()
         collection = get_collection()
+        count = collection.count()
 
-        doc_count = collection.count()
-        st.sidebar.success(f"Connected - {doc_count} documents indexed")
+        st.sidebar.success(f"Connected: {count} chunks")
         st.sidebar.info(f"Device: {device}")
+        st.sidebar.info(f"LLM: {LLM_MODEL}")
+
     except Exception as e:
-        st.error(f"Failed to connect to database: {e}")
-        st.info("Run 'python embed_and_store.py' first to generate embeddings.")
+        st.error(f"Error: {e}")
         return
 
+    # Sidebar
     with st.sidebar:
-        st.header("Filters")
-        domain_filter = st.selectbox("Filter by Domain", options=["All"] + DOMAINS)
+        st.header("Settings")
+        domain_filter = st.selectbox("Domain", ["All"] + DOMAINS)
+        k = st.slider("Top-K", 1, 10, RAG_TOP_K)
 
-        n_results = st.slider("Number of results", 1, 10, 5)
-
-        st.header("Stats")
-        for domain in DOMAINS:
-            try:
-                count = collection.count(where={"domain": domain})
-                st.metric(domain.capitalize(), count)
-            except Exception:
-                st.metric(domain.capitalize(), 0)
-
-    query = st.text_input(
-        "Ask a medical question:",
-        placeholder="e.g., What are the symptoms of heart failure?",
-    )
+    # Input
+    query = st.text_input("Ask your medical question:")
 
     if query:
-        with st.spinner("Searching..."):
+        with st.spinner("Thinking..."):
+
             domain = None if domain_filter == "All" else domain_filter
-            results = query_database(query, model, collection, domain, n_results)
 
-        if (
-            not results.get("documents")
-            or not results["documents"][0]
-            or not results["documents"][0][0]
-        ):
-            st.warning("No results found.")
-        else:
-            st.success(f"Found {len(results['documents'][0])} results")
+            # Step 1: Retrieval
+            results = retrieve_chunks(query, model, collection, domain, k)
 
+            if not results["documents"] or not results["documents"][0]:
+                st.warning("No results found")
+                return
+
+            # Step 2: Context
+            context, sources = build_context(results)
+
+            # Step 3: LLM Answer
+            answer = generate_answer(query, context)
+
+        # Output
+        st.subheader("🧠 Answer")
+        st.write(answer)
+
+        st.subheader("📚 Sources")
+        for s in sources:
+            st.write(f"- {s}")
+
+        with st.expander("🔍 Retrieved Context"):
             for i in range(len(results["documents"][0])):
-                metadata = (
-                    results["metadatas"][0][i]
-                    if results["metadatas"] and results["metadatas"][0]
-                    else {}
-                )
-                doc_text = results["documents"][0][i] if results["documents"][0] else ""
-
-                with st.expander(
-                    f"Result {i + 1}: {metadata.get('source', 'Unknown')}",
-                    expanded=True,
-                ):
-                    col1, col2 = st.columns([1, 4])
-                    with col1:
-                        st.markdown("**Domain:**")
-                        st.markdown("**Source:**")
-                    with col2:
-                        st.markdown(metadata.get("domain", "Unknown"))
-                        st.markdown(metadata.get("source", "Unknown"))
-
-                    st.markdown("---")
-                    st.markdown(doc_text)
+                st.write(f"--- Chunk {i+1} ---")
+                st.write(results["documents"][0][i])
 
 
 if __name__ == "__main__":
