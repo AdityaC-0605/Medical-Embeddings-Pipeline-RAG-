@@ -76,8 +76,10 @@ def chunk_text(text, chunk_size, overlap):
         else:
             current_chunk = (current_chunk + " " + sentence).strip()
 
+    # FIX: was min_length=300, which silently dropped valid short concluding
+    # paragraphs. Now consistent with the body chunk threshold of 100.
     chunk = current_chunk.strip()
-    if is_quality_chunk(chunk, min_length=300):
+    if is_quality_chunk(chunk, min_length=100):
         chunks.append(chunk)
 
     return chunks
