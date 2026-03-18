@@ -109,7 +109,7 @@ def main():
         logger.info("No new chunks to add. Database is up to date.")
         return
 
-    instruction = "Represent this medical passage for retrieval: "
+    instruction = "Represent this sentence for searching relevant passages: "
     texts = [instruction + chunk["text"] for chunk in new_chunks]
 
     logger.info("Generating embeddings...")
@@ -120,7 +120,13 @@ def main():
         show_progress_bar=True,
     )
 
-    ids = [str(existing_count + i) for i in range(len(new_chunks))]
+    # FIX: use text_hash as the ID instead of a positional integer.
+    # The old approach (existing_count + i) caused ID collisions when
+    # re-running the script after deleting some documents, because
+    # existing_count would be lower than the highest stored ID.
+    # Using the hash makes every ID globally unique and makes upsert
+    # fully idempotent — running the script twice never creates duplicates.
+    ids = [chunk["text_hash"] for chunk in new_chunks]
 
     batch_size = 1000
     total = len(new_chunks)
