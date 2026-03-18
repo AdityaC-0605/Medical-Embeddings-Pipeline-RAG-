@@ -8,7 +8,7 @@ logger = setup_logger(__name__)
 
 
 def query_database(query_text, model, collection, domain_filter=None, n_results=5):
-    query_instruction = "Represent this medical question for retrieval: "
+    query_instruction = "Represent this question for searching relevant passages: "
 
     query_embedding = model.encode(
         query_instruction + query_text, normalize_embeddings=True
@@ -16,10 +16,13 @@ def query_database(query_text, model, collection, domain_filter=None, n_results=
 
     where_clause = {"domain": domain_filter} if domain_filter else None
 
+    # FIX: explicitly specify include= so metadatas and distances are always
+    # returned regardless of ChromaDB version defaults.
     results = collection.query(
-        query_embeddings=[query_embedding.tolist()], 
+        query_embeddings=[query_embedding.tolist()],
         n_results=n_results,
-        where=where_clause
+        where=where_clause,
+        include=["documents", "metadatas", "distances"],
     )
 
     return results
@@ -73,11 +76,13 @@ def main():
         print("\nRetrieved Chunks:\n")
 
         for i in range(len(results["documents"][0])):
+            similarity = round(1 - results["distances"][0][i], 4)
             print(f"--- Result {i + 1} ---")
-            print("Source:", results["metadatas"][0][i].get("source", "Unknown"))
-            print("Domain:", results["metadatas"][0][i].get("domain", "Unknown"))
+            print("Source  :", results["metadatas"][0][i].get("source", "Unknown"))
+            print("Domain  :", results["metadatas"][0][i].get("domain", "Unknown"))
+            print("Sim     :", similarity)
             print(results["documents"][0][i][:500])
-            print("\n")
+            print()
 
 
 if __name__ == "__main__":
