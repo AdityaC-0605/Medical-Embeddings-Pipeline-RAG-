@@ -7,3 +7,4 @@ torch>=2.2.0
 streamlit>=1.30.0
 requests>=2.31.0
 posthog<3.0.0
+ragas>=0.1.0
