@@ -42,7 +42,7 @@ LOG_FILE = os.getenv("LOG_FILE", "app.log")
 # ---------------------------------------
 
 # 🔥 For normal app (UI / query)
-LLM_MODEL = os.getenv("LLM_MODEL", "llama3.1:8b")
+LLM_MODEL = "mistral:7b"
 
 # 🔥 For RAGAS evaluation (fast + stable)
 RAGAS_LLM_MODEL = os.getenv("RAGAS_LLM_MODEL", "mistral:7b")
