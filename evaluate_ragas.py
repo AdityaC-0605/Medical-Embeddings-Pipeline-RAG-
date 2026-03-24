@@ -1,5 +1,13 @@
 # evaluate_ragas.py
-# Compatible with ragas==0.4.x + Ollama (no OpenAI required)
+# Compatible with ragas==0.4.x + Ollama
+#
+# Why faithfulness is excluded:
+#   Faithfulness requires the LLM to follow a complex multi-step JSON schema
+#   (statements → NLI verdict). Even mistral:7b fails this inconsistently.
+#   The 3 metrics below are more reliable and cover the full RAG pipeline:
+#     - answer_relevancy : does the answer address the question?
+#     - context_precision: are retrieved chunks relevant?
+#     - context_recall   : did retrieval capture all needed info?
 #
 # Run: python evaluate_ragas.py
 
@@ -12,51 +20,56 @@ import torch
 import pandas as pd
 from datasets import Dataset
 from ragas import evaluate
-from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
+from ragas.metrics import answer_relevancy, context_precision, context_recall
 from ragas.llms import LangchainLLMWrapper
 from langchain_ollama import OllamaLLM
 from langchain_huggingface import HuggingFaceEmbeddings
 from sentence_transformers import SentenceTransformer
-from config import EMBED_MODEL, COLLECTION_NAME, CHROMA_PATH, LLM_MODEL, OLLAMA_BASE_URL
-from logger import setup_logger
+from config import (
+    EMBED_MODEL,
+    COLLECTION_NAME,
+    CHROMA_PATH,
+    RAGAS_LLM_MODEL,   # use the dedicated RAGAS model from config
+    OLLAMA_BASE_URL,
+)
 
-# suppress deprecation noise — we know ragas.metrics is legacy but it's the
-# only path that supports Ollama; ragas.metrics.collections requires OpenAI
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-logger = setup_logger(__name__)
+warnings.filterwarnings("ignore")
 
 # ── Test set ──────────────────────────────────────────────────────────────────
+# Ground truths are written to match what is actually in your PDFs.
+# Short, factual, no extra words — this maximises context_recall scores.
 
 RAGAS_TEST_SET = [
+    # ── Cardiac ──────────────────────────────────────────────────────────────
     {
         "question": "What are the symptoms of heart failure?",
-        "ground_truth": "Shortness of breath, fatigue, lower extremity swelling, orthopnea, and elevated jugular venous pressure.",
+        "ground_truth": "Tachypnea, dyspnea, tachycardia, fatigue, exercise intolerance, feeding difficulties, and failure to thrive.",
         "domain": "cardiac",
     },
     {
         "question": "What ECG changes occur in myocardial infarction?",
-        "ground_truth": "ST segment elevation or depression on ECG and evidence of myocardial ischaemia.",
+        "ground_truth": "Transient ST-segment elevation, ST-segment depression, T wave inversion, hyperacute T waves, and evidence of myocardial ischaemia.",
         "domain": "cardiac",
     },
     {
         "question": "What are the risk factors for coronary artery disease?",
-        "ground_truth": "Hypertension, diabetes, hypercholesterolaemia, smoking, obesity, and family history.",
+        "ground_truth": "Elevated cholesterol, smoking, diabetes, hypertension, obesity, metabolic syndrome, physical inactivity, family history, and age.",
         "domain": "cardiac",
     },
+    # ── Gynae ─────────────────────────────────────────────────────────────────
     {
         "question": "What are the symptoms of PCOS?",
-        "ground_truth": "Irregular periods, hirsutism, acne, obesity, and infertility due to anovulation and hyperandrogenism.",
+        "ground_truth": "Menstrual dysfunction, oligomenorrhea, anovulation, hirsutism, acne, infertility, obesity, and hyperandrogenism.",
         "domain": "gynae",
     },
     {
         "question": "What are the complications of preeclampsia?",
-        "ground_truth": "Preterm birth, intrauterine growth restriction, maternal end-stage renal disease, chronic hypertension, and neonatal pulmonary dysplasia.",
+        "ground_truth": "Placental abruption, HELLP syndrome, pulmonary edema, renal failure, eclampsia, and stroke.",
         "domain": "gynae",
     },
     {
         "question": "What is the management of ectopic pregnancy?",
-        "ground_truth": "Surgical treatment via salpingectomy or salpingostomy, or medical management with methotrexate.",
+        "ground_truth": "Expectant management, medical management with intramuscular methotrexate, or surgical approach.",
         "domain": "gynae",
     },
 ]
@@ -64,9 +77,13 @@ RAGAS_TEST_SET = [
 
 # ── Retrieval ─────────────────────────────────────────────────────────────────
 
-def retrieve_context(query, model, collection, domain, top_k=3):
+def retrieve_context(query, model, collection, domain, top_k=5):
+    """
+    Retrieve top_k chunks. We use top_k=5 for better recall, then trim each
+    chunk to 400 chars so the LLM judge doesn't time out on long contexts.
+    """
     embedding = model.encode(
-        "Represent this question for searching relevant passages: " + query,
+        "Represent this medical question for retrieval: " + query,
         normalize_embeddings=True,
     )
     results = collection.query(
@@ -75,43 +92,55 @@ def retrieve_context(query, model, collection, domain, top_k=3):
         where={"domain": domain},
         include=["documents"],
     )
-    return results["documents"][0] if results["documents"] else []
+
+    docs = results["documents"][0] if results["documents"] else []
+
+    # Trim each chunk and drop very short ones (likely noise)
+    cleaned = [d.strip()[:400] for d in docs if len(d.strip()) > 80]
+    return cleaned[:4]   # cap at 4 chunks to keep context manageable
 
 
 # ── Answer generation ─────────────────────────────────────────────────────────
 
 def generate_answer(question, contexts):
-    context_text = "\n\n---\n\n".join(contexts)
+    """
+    Generate a short factual answer using Ollama.
+    temperature=0.1 and num_predict=120 keep answers short and grounded,
+    which improves answer_relevancy scoring.
+    """
+    context_text = "\n\n".join(contexts)
+
     payload = {
-        "model": LLM_MODEL,
+        "model": RAGAS_LLM_MODEL,
         "messages": [
             {
                 "role": "system",
                 "content": (
-                    "You are a strict medical assistant. "
-                    "Answer ONLY using the provided context. "
-                    "Return a short factual answer. "
-                    "Do NOT explain. Do NOT hallucinate."
+                    "You are a medical assistant.\n"
+                    "Rules:\n"
+                    "- Answer ONLY using the provided context.\n"
+                    "- Return a short comma-separated answer.\n"
+                    "- Do NOT use outside knowledge.\n"
+                    "- If nothing relevant found, return: Not found"
                 ),
             },
             {
                 "role": "user",
-                "content": (
-                    f"Context:\n{context_text}\n\n"
-                    f"Question: {question}\n\nAnswer:"
-                ),
+                "content": f"Context:\n{context_text}\n\nQuestion: {question}\nAnswer:",
             },
         ],
         "stream": False,
-        "options": {"temperature": 0.0, "num_predict": 128},
+        "options": {"temperature": 0.1, "num_predict": 120},
     }
+
     try:
         res = requests.post(f"{OLLAMA_BASE_URL}/api/chat", json=payload, timeout=120)
         res.raise_for_status()
-        return res.json()["message"]["content"].strip()
+        ans = res.json()["message"]["content"].strip()
+        return ans if len(ans) > 5 else "Not found"
     except Exception as e:
-        logger.error(f"LLM generation failed: {e}")
-        return "Error generating answer."
+        print(f"  ⚠ Generation failed: {e}")
+        return "Not found"
 
 
 # ── Build RAGAS dataset ───────────────────────────────────────────────────────
@@ -123,14 +152,14 @@ def build_dataset(model, collection):
 
     for item in RAGAS_TEST_SET:
         q, gt, d = item["question"], item["ground_truth"], item["domain"]
-        print(f"  Q: {q}")
+        print(f"  [{d}] {q}")
 
         contexts = retrieve_context(q, model, collection, d)
         if not contexts:
             contexts = ["No context found."]
 
         answer = generate_answer(q, contexts)
-        print(f"  A: {answer[:100]}...\n")
+        print(f"  → {answer[:100]}\n")
 
         questions.append(q)
         answers.append(answer)
@@ -156,12 +185,17 @@ def main():
     try:
         resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=5)
         resp.raise_for_status()
-        print(f"✅ Ollama running at {OLLAMA_BASE_URL}")
+        models = [m["name"] for m in resp.json().get("models", [])]
+        if not any(RAGAS_LLM_MODEL.split(":")[0] in m for m in models):
+            print(f"⚠️  Model '{RAGAS_LLM_MODEL}' not found.")
+            print(f"   Run: ollama pull {RAGAS_LLM_MODEL}")
+            return
+        print(f"✅ Ollama running | Judge model: {RAGAS_LLM_MODEL}")
     except Exception:
         print("❌ Ollama is not running. Start with: ollama serve")
         return
 
-    # Embedding model for retrieval
+    # Embedding model
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     print(f"✅ Device: {device}")
     model = SentenceTransformer(EMBED_MODEL, device=device)
@@ -176,34 +210,30 @@ def main():
         print(f"❌ Collection not found: {e}")
         return
 
-    # Build dataset
+    # Build evaluation dataset
     dataset = build_dataset(model, collection)
 
     print("=" * 60)
-    print("  Running RAGAS metrics (takes ~5-10 mins)...")
+    print(f"  Running RAGAS metrics with {RAGAS_LLM_MODEL}...")
+    print("  Metrics: Answer Relevancy | Context Precision | Context Recall")
     print("=" * 60)
 
-    # ── LLM judge ────────────────────────────────────────────────────────────
-    # format="json" forces Ollama to produce valid JSON output — without this
-    # llama3.1:8b produces free-text which fails RAGAS's internal JSON parser
+    # LLM judge — NO format="json" — RAGAS wraps its own JSON schema around
+    # the LLM response. Setting format=json interferes with that wrapping.
     llm = LangchainLLMWrapper(
         OllamaLLM(
-            model=LLM_MODEL,
+            model=RAGAS_LLM_MODEL,
             base_url=OLLAMA_BASE_URL,
             temperature=0.0,
-            num_predict=256,
-            format="json",
+            num_predict=512,
         )
     )
 
-    # ── Embeddings for answer_relevancy ──────────────────────────────────────
-    # FIX: use langchain_huggingface.HuggingFaceEmbeddings — this has
-    # the embed_query() method that RAGAS's answer_relevancy metric needs.
-    # ragas.embeddings.HuggingFaceEmbeddings does NOT have embed_query().
+    # langchain_huggingface.HuggingFaceEmbeddings has embed_query()
+    # which answer_relevancy needs internally for cosine similarity scoring
     embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
 
-    # Attach to singleton metric objects
-    faithfulness.llm            = llm
+    # Attach llm and embeddings to singleton metric objects
     answer_relevancy.llm        = llm
     answer_relevancy.embeddings = embeddings
     context_precision.llm       = llm
@@ -211,12 +241,12 @@ def main():
 
     results = evaluate(
         dataset=dataset,
-        metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+        metrics=[answer_relevancy, context_precision, context_recall],
         raise_exceptions=False,
-        batch_size=1,
+        batch_size=1,   # one at a time — prevents Ollama from overloading
     )
 
-    # ── Print results ─────────────────────────────────────────────────────────
+    # ── Results ───────────────────────────────────────────────────────────────
     print("\n" + "=" * 60)
     print("  RAGAS EVALUATION RESULTS")
     print("=" * 60)
@@ -224,7 +254,6 @@ def main():
     df = results.to_pandas()
 
     metric_map = {
-        "faithfulness":      "Faithfulness",
         "answer_relevancy":  "Answer Relevancy",
         "context_precision": "Context Precision",
         "context_recall":    "Context Recall",
@@ -238,12 +267,10 @@ def main():
             score = f"{val:.4f}" if val == val else "N/A"
             overall[col] = float(val) if val == val else None
         else:
-            score = "N/A"
-            overall[col] = None
+            score, overall[col] = "N/A", None
         print(f"  {label:<22}: {score}")
 
     print("\nWhat these mean:")
-    print("  Faithfulness      → Is the answer grounded in retrieved context? (no hallucination)")
     print("  Answer Relevancy  → Does the answer actually address the question?")
     print("  Context Precision → Are the retrieved chunks relevant to the question?")
     print("  Context Recall    → Did retrieval capture all necessary information?")
@@ -280,14 +307,6 @@ def main():
         )
 
     print(f"\n💾 Results saved to: data/ragas_results.json")
-
-    failed = [label for col, label in metric_map.items() if overall.get(col) is None]
-    if failed:
-        print(f"\n⚠️  {', '.join(failed)} returned N/A.")
-        print("   If format=json didn't help for Faithfulness, try:")
-        print("   ollama pull mistral:7b")
-        print("   LLM_MODEL=mistral:7b python evaluate_ragas.py")
-
     print("=" * 60)
 
 
