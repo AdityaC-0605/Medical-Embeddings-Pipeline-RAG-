@@ -1,93 +1,110 @@
 {
   "overall": {
-    "answer_relevancy": 0.7838135300518525,
-    "context_precision": 0.9611111110857408,
-    "context_recall": 1.0
+    "faithfulness": 0.9259222222222222,
+    "answer_relevancy": 0.6527857689267423,
+    "context_precision": 0.8722222221989814,
+    "context_recall": 0.7255555555555555
   },
   "per_question": [
     {
-      "user_input": "What are the symptoms of heart failure?",
-      "retrieved_contexts": [
-        "Th e neonate with heart failure typically presents with clinical signs of a low-cardiac output state. Causes include left-sided out\ufb02 ow obstruction (as in aortic stenosis, aortic coarctation, hypoplastic left heart syndrome), severe valve regurgitation (as seen in Ebstein anomaly), or absent pulmonary valve syndrome. During the \ufb01 rst year of life most cases of heart failure are caused by structura",
-        "Th e chest radio- graph typically demonstrates cardiomegaly, pulmonary vascular congestion, and, in some cases, atelectasis (Fig. 14-3). An ECG may identify the likely cause of the cardiac dysfunction in those with cardiomyopathy secondary to rhythm disorders or anoma- lous origin of the left coronary artery from the pulmonary root. Th e echocardiogram is essential for diagnosis and characteristi-",
-        "A diagnosis of definite HF required objective data in addition to the criteria described above for probable HF (symptoms, physician diagnosis, and medication use). Objective data included: (a) chest radiography with pulmonary edema or signs of volume overload; (b) echocardiography with at least one of the following: left ventricular ejection fraction less than 50%, left ventricular chamber dilatio",
-        "Frequently, a mitral regurgitant murmur is present. Beyond the \ufb01 rst year of life, heart failure is either a conse- quence of previous surgical interventions, unpalliated/unre- paired cardiovascular disease, cardiomyopathies, myocarditis, or anthracycline therapy for a malignancy. Occasionally, a child may present with severe ventricular systolic impairment related to ongoing myocardial ischemia a"
-      ],
-      "response": "Symptoms, physician diagnosis, and medication use",
-      "reference": "Tachypnea, dyspnea, tachycardia, fatigue, exercise intolerance, feeding difficulties, and failure to thrive.",
-      "answer_relevancy": 0.47886003023790186,
+      "question": "What are the symptoms of heart failure?",
+      "answer": "Symptoms include low-cardiac output state, cardiomegaly, pulmonary vascular congestion, atelectasis, mitral regurgitant murmur.",
+      "contexts": "['Th e neonate with heart failure typically presents with clinical signs of a low-cardiac output state. Causes include left-sided out\ufb02 ow obstruction (as in aortic stenosis, aortic coarctation, hypoplastic left heart syndrome), severe valve regurgitation (as seen in Ebstein anomaly), or absent pulmonary valve syndrome. During the \ufb01 rst year of life most cases of heart failure are caused by structura'\n 'Th e chest radio- graph typically demonstrates cardiomegaly, pulmonary vascular congestion, and, in some cases, atelectasis (Fig. 14-3). An ECG may identify the likely cause of the cardiac dysfunction in those with cardiomyopathy secondary to rhythm disorders or anoma- lous origin of the left coronary artery from the pulmonary root. Th e echocardiogram is essential for diagnosis and characteristi-'\n 'A diagnosis of definite HF required objective data in addition to the criteria described above for probable HF (symptoms, physician diagnosis, and medication use). Objective data included: (a) chest radiography with pulmonary edema or signs of volume overload; (b) echocardiography with at least one of the following: left ventricular ejection fraction less than 50%, left ventricular chamber dilatio'\n 'Frequently, a mitral regurgitant murmur is present. Beyond the \ufb01 rst year of life, heart failure is either a conse- quence of previous surgical interventions, unpalliated/unre- paired cardiovascular disease, cardiomyopathies, myocarditis, or anthracycline therapy for a malignancy. Occasionally, a child may present with severe ventricular systolic impairment related to ongoing myocardial ischemia a']",
+      "ground_truth": "tachypnea, dyspnea, tachycardia, fatigue, exercise intolerance, feeding difficulties, failure to thrive",
+      "answer_relevancy": 0.8545423140859701,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.3888888888888889,
+      "faithfulness": 1.0
+    },
+    {
+      "question": "What ECG changes occur in myocardial infarction?",
+      "answer": "ST-segment elevation, Q-waves, T-wave inversion.",
+      "contexts": "['Eur Heart J 2018;39:119\u2013177. eurheartj/ehx393 5. Diercks DB, Peacock WF, Hiestand BC, Chen AY, Pollack CV, Kirk JD, et al. Frequency and consequences of recording an electrocardiogram >10 minutes after arrival in an emergency room in non-ST-segment elevation acute coronary syndromes (from the CRUSADE Initiative). Am J Cardiol 2006;97:437\u2013442. 2005.09.073 6. Lopez-Sendon J, Coma-Canella I, Alcasena'\n '16% (7/44), P < 0.001]. Conclusion A new clinical classification of myocardial infarction informed by cardiac imaging would reduce the diagnosis of myocardial infarction in acute illness and identify those patients at highest risk who are most likely to benefit from treatment. Clinical trial registration - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - '\n 'CAD, coronary artery disease; CT, computed tomography; LAD, left anterior descending; LGE, late gadolinium enhancement; LV, left ventricle. aProportion of those who underwent cardiac magnetic resonance imaging. 136 J. Boeddinghaus et al. Figure 2 Case of spontaneous myocardial infarction (A), secondary myocardial infarction (B), and no myocardial infarction (C). (A) A 65-year-old patient with a re'\n 'O\u2019Doherty M, Tayler DI, Quinn E, Vincent R, Chamberlain DA. Five hundred patients with myocardial infarction monitored within one hour of symptoms. Br Med J (Clin Res Ed) 1983;286:1405\u20131408. 21. Mehta RH, Starr AZ, Lopes RD, Hochman JS, Widimsky P, Pieper KS, et al. Incidence of and outcomes associated with ventricular tachycardia or fibrillation in patients under\\xad going primary percutaneous coron']",
+      "ground_truth": "ST elevation, ST depression, T wave inversion, hyperacute T waves, myocardial ischaemia on ECG",
+      "answer_relevancy": 0.611045241827148,
       "context_precision": 0.8055555555287036,
-      "context_recall": 1.0
+      "context_recall": 0.6,
+      "faithfulness": 0.3333
     },
     {
-      "user_input": "What ECG changes occur in myocardial infarction?",
-      "retrieved_contexts": [
-        "Eur Heart J 2018;39:119\u2013177. eurheartj/ehx393 5. Diercks DB, Peacock WF, Hiestand BC, Chen AY, Pollack CV, Kirk JD, et al. Frequency and consequences of recording an electrocardiogram >10 minutes after arrival in an emergency room in non-ST-segment elevation acute coronary syndromes (from the CRUSADE Initiative). Am J Cardiol 2006;97:437\u2013442. 2005.09.073 6. Lopez-Sendon J, Coma-Canella I, Alcasena",
-        "16% (7/44), P < 0.001]. Conclusion A new clinical classification of myocardial infarction informed by cardiac imaging would reduce the diagnosis of myocardial infarction in acute illness and identify those patients at highest risk who are most likely to benefit from treatment. Clinical trial registration - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ",
-        "CAD, coronary artery disease; CT, computed tomography; LAD, left anterior descending; LGE, late gadolinium enhancement; LV, left ventricle. aProportion of those who underwent cardiac magnetic resonance imaging. 136 J. Boeddinghaus et al. Figure 2 Case of spontaneous myocardial infarction (A), secondary myocardial infarction (B), and no myocardial infarction (C). (A) A 65-year-old patient with a re",
-        "O\u2019Doherty M, Tayler DI, Quinn E, Vincent R, Chamberlain DA. Five hundred patients with myocardial infarction monitored within one hour of symptoms. Br Med J (Clin Res Ed) 1983;286:1405\u20131408. 21. Mehta RH, Starr AZ, Lopes RD, Hochman JS, Widimsky P, Pieper KS, et al. Incidence of and outcomes associated with ventricular tachycardia or fibrillation in patients under\u00ad going primary percutaneous coron"
-      ],
-      "response": "Not found (The provided context does not mention any specific ECG changes related to myocardial infarction.)",
-      "reference": "Transient ST-segment elevation, ST-segment depression, T wave inversion, hyperacute T waves, and evidence of myocardial ischaemia.",
-      "answer_relevancy": 0.9078906792623168,
+      "question": "What are the risk factors for coronary artery disease?",
+      "answer": "Elevated cholesterol, Smoking, Diabetes, Metabolic syndrome, Hypertension, Obesity, Age, Family history, Physical inactivity, Vascular injury and inflammation.",
+      "contexts": "['You may reduce your chances of developing heart disease by changing certain habits or \u201crisk factors.\u201d Risk Factors Risk Factors 28 The primary risk factors for cardiovascular disease include: 1) Elevated cholesterol 2) Smoking 3) Diabetes 4) Metabolic syndrome 5) Hypertension 6) Obesity 7) Age 8) Family history 9) Physical inactivity 10) Vascular injury and in\ufb02ammation 29 1. Elevated cholesterol C'\n 'If you believe you may have a medical condition described in the book, consult your doctor. vi Table of Contents Introduction vi Heart Anatomy 1 Arteries and Coronary Arteries 12 Risk Factors 27 Exercise 73 Nutrition 92 Angioplasty, Bypass Surgery, and Medications 102 Questions 121 vii Introduction Heart disease, especially coronary heart disease, is an everyday part of our culture. It is also the'\n 'Cigarette Smoking Smoking remains one of the most important risk factors for CAD. It can aggravate angina and also add in the progression of atherosclerosis. Smoking cessation lessens the risk of coronary events and all strategies for smoking cessation should be adopted in smokers. Nicotine replacement therapy is safe and should be considered in individual cases. Hypertension Epidemiological links'\n 'In the INTERHEART study, 8 common risk factors explained more than 90% of acute myocardial infarctions (MIs) in South Asian and Indian patients.2 These risk factors were dyslipidemia, smoking or tobacco use, hypertension, diabetes, abdominal obesity, lack of physical activity, less intake of fruits and vegetables, and psychological stress. The interventions to prevent and treat heart disease could']",
+      "ground_truth": "elevated cholesterol, smoking, diabetes, hypertension, obesity, family history, physical inactivity, metabolic syndrome",
+      "answer_relevancy": 0.8457344576824161,
       "context_precision": 0.999999999975,
-      "context_recall": 1.0
+      "context_recall": 0.75,
+      "faithfulness": 1.0
     },
     {
-      "user_input": "What are the risk factors for coronary artery disease?",
-      "retrieved_contexts": [
-        "You may reduce your chances of developing heart disease by changing certain habits or \u201crisk factors.\u201d Risk Factors Risk Factors 28 The primary risk factors for cardiovascular disease include: 1) Elevated cholesterol 2) Smoking 3) Diabetes 4) Metabolic syndrome 5) Hypertension 6) Obesity 7) Age 8) Family history 9) Physical inactivity 10) Vascular injury and in\ufb02ammation 29 1. Elevated cholesterol C",
-        "If you believe you may have a medical condition described in the book, consult your doctor. vi Table of Contents Introduction vi Heart Anatomy 1 Arteries and Coronary Arteries 12 Risk Factors 27 Exercise 73 Nutrition 92 Angioplasty, Bypass Surgery, and Medications 102 Questions 121 vii Introduction Heart disease, especially coronary heart disease, is an everyday part of our culture. It is also the",
-        "Cigarette Smoking Smoking remains one of the most important risk factors for CAD. It can aggravate angina and also add in the progression of atherosclerosis. Smoking cessation lessens the risk of coronary events and all strategies for smoking cessation should be adopted in smokers. Nicotine replacement therapy is safe and should be considered in individual cases. Hypertension Epidemiological links",
-        "In the INTERHEART study, 8 common risk factors explained more than 90% of acute myocardial infarctions (MIs) in South Asian and Indian patients.2 These risk factors were dyslipidemia, smoking or tobacco use, hypertension, diabetes, abdominal obesity, lack of physical activity, less intake of fruits and vegetables, and psychological stress. The interventions to prevent and treat heart disease could"
-      ],
-      "response": "Elevated cholesterol, Smoking, Diabetes, Hypertension, Obesity, Family history, Physical inactivity, Vascular injury and inflammation",
-      "reference": "Elevated cholesterol, smoking, diabetes, hypertension, obesity, metabolic syndrome, physical inactivity, family history, and age.",
-      "answer_relevancy": 0.9003072753334972,
+      "question": "How is heart failure managed?",
+      "answer": "Inotropic support (including phosphodiesterase inhibition) and mechanical ventilation, gentle diuresis.",
+      "contexts": "['The recommendations present an evidence-based approach to managing patients with heart failure, with the intent to improve quality of care and align with patients\u2019 interests. Many recommendations from the earlier heart failure guidelines have been updated with new evidence, and new recommendations have been created when supported by published data. Value statements are provided for certain treatme'\n 'METHODS: A comprehensive literature search was conducted from May 2020 to December 2020, encompassing studies, reviews, and other evidence conducted on human subjects that were published in English from MEDLINE (PubMed), EMBASE, the Cochrane Collaboration, the Agency for Healthcare Research and Quality, and other relevant databases. Additional relevant clinical trials and research studies, publish'\n '2022;145:e895\u2013e1032. DOI: 10.1161/CIR.0000000000001063\\x08 May 3, 2022 e899 CLINICAL STATEMENTS AND GUIDELINES Heidenreich et al\\x08 2022 AHA/ACC/HFSA Heart Failure Guideline all available data.4,5 Literature searches focus on ran- domized controlled trials (RCTs) but also include regis- tries, nonrandomized comparative and descriptive stud- ies, case series, cohort studies, systematic reviews, and expe'\n 'Management may include inotropic support (including phosphodiesterase inhibition) and mechani- cal ventilation. Unlike children with HCM, those with DCM have a volume-loaded, poorly contractile ventricle(s); therefore, gentle diuresis is bene\ufb01 cial. Th e infusion of large \ufb02 uid boluses might be poorly tolerated and result in hemodynamic decom- pensation and cardiovascular collapse. Th e outcome of']",
+      "ground_truth": "beta-blockers, ACE inhibitors, diuretics, aldosterone antagonists, angiotensin receptor blockers, medication adjustment",
+      "answer_relevancy": 0.8966295002807226,
       "context_precision": 0.999999999975,
-      "context_recall": NaN
+      "context_recall": 0.8,
+      "faithfulness": 1.0
     },
     {
-      "user_input": "What are the symptoms of PCOS?",
-      "retrieved_contexts": [
-        "A prospective case-control study showed that women with PCOS have significantly higher levels of psychological symptoms, including depression, anxiety, and elevated perceived stress, compared to women without PCOS. Physical Examination Hirsutism and virilizing signs Patients may have excessive body hair in a male distribution pattern, as well as acne. Some patients have virilizing signs, such as m",
-        "emedicine.medscape.com Polycystic Ovarian Syndrome Updated: Jan 12, 2026 Author: Richard Scott Lucidi, MD, FACOG; Chief Editor: Richard Scott Lucidi, MD, FACOG Overview Background Patients with polycystic ovarian syndrome (PCOS) have abnormalities in the metabolism of androgens and estrogen and in the control of androgen production. The major features of PCOS include menstrual dysfunction, anovula",
-        "No known association with breast or ovarian cancer has been found; thus, no additional surveillance is needed. Presentation History The family history of patients with polycystic ovarian syndrome (PCOS) may include the following: Menstrual disorders Adrenal enzyme deficiencies Hirsutism Infertility Obesity and metabolic syndrome Diabetes Menstrual abnormalities Patients with PCOS have abnormal men",
-        "\u2022 May be asymptomatic. Diagnosis Patients must have two out of the three features below: \u2022 Amenorrhoea/oligomenorrhoea. \u2022 Clinical or biochemical hyperandrogenism. \u2022 Polycystic ovaries on ultrasound. The ultrasound criteria for the diagnosis of a polycystic ovary are eight or more subcapsular follicular cysts <10 mm in diameter and increased ovarian stroma. While these findings support a diagnosis"
-      ],
-      "response": "Amenorrhoea/oligomenorrhoea, clinical or biochemical hyperandrogenism (excessive body hair in male distribution pattern, acne), polycystic ovaries on ultrasound.",
-      "reference": "Menstrual dysfunction, oligomenorrhea, anovulation, hirsutism, acne, infertility, obesity, and hyperandrogenism.",
-      "answer_relevancy": 0.8538504842775775,
+      "question": "What are the surgical options for cardiac surgery?",
+      "answer": "Not found",
+      "contexts": "['Starting in 2011, the complete list of congenital cardiac diagnoses and procedures is now shared by both the STS Congenital Heart Surgery Database and the STS Adult Cardiac Surgery Database. Limitations The limitations of this study are primarily related to the nature of the STS Database. Not all US centers participate in the STS Database or submit complete data. Thus, the results of this study ma'\n 'The Society of Thoracic Surgeons (STS) Congenital Heart Surgery Database collects perioperative information on all patients at participating institutions undergoing operations for congenital heart disease. Approximately three quarters of all centers performing congenital heart surgery submit data to this database, and therefore it is a potentially valuable repository of surgical information on ACH'\n 'Lang RM, Mor-Avi V, Sugeng L, et al: Th ree-dimensional echocardiog- raphy: the bene\ufb01 ts of the additional dimension. J Am Coll Cardiol 2006; 48:2053-2069 Th e article focuses on the bene\ufb01 ts of 3D echocardiography, the realistic and unique comprehensive views of cardiac valves and congenital abnormalities; and the utility in the intraoperative and postoperative settings. Samyn MM: A review of the'\n 'In patients for whom echocardiography is inadequate, alternative imaging (eg, cardiac magnetic resonance [CMR], cardiac computed tomography [CT], radionuclide imaging) is rec- ommended for assessment of LVEF.8\u201315 2a B-NR 5. In patients with HF or cardiomyopathy, CMR can be useful for diagnosis or manage- ment.16\u201323 2a B-NR 6. In patients with HF, an evaluation for possible ischemic heart disease c']",
+      "ground_truth": "coronary artery bypass grafting, valve replacement, valve repair, cardiac transplantation",
+      "answer_relevancy": 0.0,
+      "context_precision": 0.0,
+      "context_recall": 1.0,
+      "faithfulness": NaN
+    },
+    {
+      "question": "What are the symptoms of PCOS?",
+      "answer": "Hirsutism, acne, depression, anxiety, elevated perceived stress, amenorrhoea/oligomenorrhoea, clinical or biochemical hyperandrogenism, polycystic ovaries on ultrasound.",
+      "contexts": "['A prospective case-control study showed that women with PCOS have significantly higher levels of psychological symptoms, including depression, anxiety, and elevated perceived stress, compared to women without PCOS. Physical Examination Hirsutism and virilizing signs Patients may have excessive body hair in a male distribution pattern, as well as acne. Some patients have virilizing signs, such as m'\n 'emedicine.medscape.com Polycystic Ovarian Syndrome Updated: Jan 12, 2026 Author: Richard Scott Lucidi, MD, FACOG; Chief Editor: Richard Scott Lucidi, MD, FACOG Overview Background Patients with polycystic ovarian syndrome (PCOS) have abnormalities in the metabolism of androgens and estrogen and in the control of androgen production. The major features of PCOS include menstrual dysfunction, anovula'\n 'No known association with breast or ovarian cancer has been found; thus, no additional surveillance is needed. Presentation History The family history of patients with polycystic ovarian syndrome (PCOS) may include the following: Menstrual disorders Adrenal enzyme deficiencies Hirsutism Infertility Obesity and metabolic syndrome Diabetes Menstrual abnormalities Patients with PCOS have abnormal men'\n '\u2022 May be asymptomatic. Diagnosis Patients must have two out of the three features below: \u2022 Amenorrhoea/oligomenorrhoea. \u2022 Clinical or biochemical hyperandrogenism. \u2022 Polycystic ovaries on ultrasound. The ultrasound criteria for the diagnosis of a polycystic ovary are eight or more subcapsular follicular cysts <10 mm in diameter and increased ovarian stroma. While these findings support a diagnosis']",
+      "ground_truth": "oligomenorrhea, anovulation, hirsutism, acne, infertility, obesity, hyperandrogenism, menstrual dysfunction",
+      "answer_relevancy": 0.8523700103636734,
       "context_precision": 0.999999999975,
-      "context_recall": 1.0
+      "context_recall": 1.0,
+      "faithfulness": 1.0
     },
     {
-      "user_input": "What are the complications of preeclampsia?",
-      "retrieved_contexts": [
-        "Even these women, how- ever, are at increased risk for adverse outcomes. Complications are more likely with severe baseline hypertension and especially with documented end-organ damage (Czeizel, 2011; Odibo, 2013). In a study of pregnancy outcomes in nearly 30,000 chronically hypertensive women, Gilbert and associates (2007) reported markedly increased maternal morbidity including stroke, pulmonar",
-        "N Engl J Med 369(3):e4, 2013 Garrett A, Craici I, White W, et al: Persistent urinary podocyte loss after pre- eclamptic pregnancies may be a possible mechanism of chronic renal injury. Abstract No. 618, Am J Obstet Gynecol 208(1 Suppl):S263, 2013 Gastrich MD, Gandhi SK, Pantazopoulos J, et al: Cardiovascular outcomes after preeclampsia or eclampsia complicated by myocardial infarction or stroke. O",
-        ". 661 xii Contents SECTION 11 OBSTETRICAL COMPLICATIONS 40. Hypertensive Disorders . . . . . . . . . . . . . 728 41. Obstetrical Hemorrhage . . . . . . . . . . . . 780 42. Preterm Labor . . . . . . . . . . . . . . . . . . . . 829 43. Postterm Pregnancy . . . . . . . . . . . . . . . 862 44. Fetal-Growth Disorders . . . . . . . . . . . . . 872 45. Multifetal Pregnancy . . . . . . . . . . . . . . . 8",
-        "Although most women tolerate pregnancy without problems, complications such as severe preeclampsia or serious infections may result in ventricular failure (Cunningham, 1986). As discussed in Chapter 49 (p. 986), heart failure caused by pulmonary hypertension must also be considered (Chakravarty, 2008; Stuart, 2004). In the review of 4352 pregnancies in women with sickle- cell syndromes noted earli"
-      ],
-      "response": "Severe preeclampsia, ventricular failure, stroke, pulmonary hypertension",
-      "reference": "Placental abruption, HELLP syndrome, pulmonary edema, renal failure, eclampsia, and stroke.",
-      "answer_relevancy": 0.7936196568463355,
-      "context_precision": NaN,
-      "context_recall": NaN
+      "question": "What are the complications of preeclampsia?",
+      "answer": "Stroke, myocardial infarction, chronic renal injury, and ventricular failure.",
+      "contexts": "['Even these women, how- ever, are at increased risk for adverse outcomes. Complications are more likely with severe baseline hypertension and especially with documented end-organ damage (Czeizel, 2011; Odibo, 2013). In a study of pregnancy outcomes in nearly 30,000 chronically hypertensive women, Gilbert and associates (2007) reported markedly increased maternal morbidity including stroke, pulmonar'\n 'N Engl J Med 369(3):e4, 2013 Garrett A, Craici I, White W, et al: Persistent urinary podocyte loss after pre- eclamptic pregnancies may be a possible mechanism of chronic renal injury. Abstract No. 618, Am J Obstet Gynecol 208(1 Suppl):S263, 2013 Gastrich MD, Gandhi SK, Pantazopoulos J, et al: Cardiovascular outcomes after preeclampsia or eclampsia complicated by myocardial infarction or stroke. O'\n '. 661 xii Contents SECTION 11 OBSTETRICAL COMPLICATIONS 40. Hypertensive Disorders . . . . . . . . . . . . . 728 41. Obstetrical Hemorrhage . . . . . . . . . . . . 780 42. Preterm Labor . . . . . . . . . . . . . . . . . . . . 829 43. Postterm Pregnancy . . . . . . . . . . . . . . . 862 44. Fetal-Growth Disorders . . . . . . . . . . . . . 872 45. Multifetal Pregnancy . . . . . . . . . . . . . . . 8'\n 'Although most women tolerate pregnancy without problems, complications such as severe preeclampsia or serious infections may result in ventricular failure (Cunningham, 1986). As discussed in Chapter 49 (p. 986), heart failure caused by pulmonary hypertension must also be considered (Chakravarty, 2008; Stuart, 2004). In the review of 4352 pregnancies in women with sickle- cell syndromes noted earli']",
+      "ground_truth": "placental abruption, HELLP syndrome, pulmonary edema, renal failure, eclampsia, stroke",
+      "answer_relevancy": 0.8024974438745606,
+      "context_precision": 0.9166666666361111,
+      "context_recall": 0.6666666666666666,
+      "faithfulness": 1.0
     },
     {
-      "user_input": "What is the management of ectopic pregnancy?",
-      "retrieved_contexts": [
-        "An endometrial biopsy can occasionally be helpful when hCG levels are static. All PUL must be investigated to determine the location of the pregnancy. Management An EP can be managed using an expectant, medical or a surgical approach, depending on clinical presentation and patient choice. Expectant management Expectant management is based on the assumption that a significant proportion of all EPs ",
-        "Expectant strategy consists of strictly monitoring b-hCG values with no pharmacological or surgical intervention. Methotrexate administration following therapeutic schemes is a cost-effective solution and keeps patient away from surgical risks. Surgery maintains a key role in treatment choice considering that is the only one available in emergency scenario. Conclusions: EP is a diagnostic challeng",
-        "Fertil Steril 96(6):1391, 2011 Verma U, Goharkhay N: Conservative management of cervical ectopic preg- nancy. Fertil Steril 91(3):671, 2009 Vermesh M, Graczykowski JW, Sauer MV: Reevaluation of the role of cul- docentesis in the management of ectopic pregnancy. Am J Obstet Gynecol 162:411, 1990 Vermesh M, Silva PD, Sauer MV, et al: Persistent tubal ectopic gestation: pat- terns of circulating beta",
-        "She requires an abdominopelvic examination. A senior colleague should be informed about her admission and the possibility of her requiring an urgent laparoscopy. The patient had a laparoscopy and was discovered to have a large right ruptured EP in her Fallopian tube with 1.5 litres of blood in her pelvis. She had a salpingectomy and subsequently recovered well. EMQ A TVUSS. B Serum hCG levels. C M"
-      ],
-      "response": "Expectant, medical (Methotrexate), or surgical (laparoscopy/salpingectomy)",
-      "reference": "Expectant management, medical management with intramuscular methotrexate, or surgical approach.",
-      "answer_relevancy": 0.7683530543534856,
+      "question": "What is the management of ectopic pregnancy?",
+      "answer": "Expectant management, medical approach using methotrexate administration, surgical approach including laparoscopy or salpingectomy.",
+      "contexts": "['An endometrial biopsy can occasionally be helpful when hCG levels are static. All PUL must be investigated to determine the location of the pregnancy. Management An EP can be managed using an expectant, medical or a surgical approach, depending on clinical presentation and patient choice. Expectant management Expectant management is based on the assumption that a significant proportion of all EPs '\n 'Expectant strategy consists of strictly monitoring b-hCG values with no pharmacological or surgical intervention. Methotrexate administration following therapeutic schemes is a cost-effective solution and keeps patient away from surgical risks. Surgery maintains a key role in treatment choice considering that is the only one available in emergency scenario. Conclusions: EP is a diagnostic challeng'\n 'Fertil Steril 96(6):1391, 2011 Verma U, Goharkhay N: Conservative management of cervical ectopic preg- nancy. Fertil Steril 91(3):671, 2009 Vermesh M, Graczykowski JW, Sauer MV: Reevaluation of the role of cul- docentesis in the management of ectopic pregnancy. Am J Obstet Gynecol 162:411, 1990 Vermesh M, Silva PD, Sauer MV, et al: Persistent tubal ectopic gestation: pat- terns of circulating beta'\n 'She requires an abdominopelvic examination. A senior colleague should be informed about her admission and the possibility of her requiring an urgent laparoscopy. The patient had a laparoscopy and was discovered to have a large right ruptured EP in her Fallopian tube with 1.5 litres of blood in her pelvis. She had a salpingectomy and subsequently recovered well. EMQ A TVUSS. B Serum hCG levels. C M']",
+      "ground_truth": "expectant management, methotrexate, salpingectomy, salpingostomy, surgical management",
+      "answer_relevancy": 0.0,
       "context_precision": 0.999999999975,
-      "context_recall": 1.0
+      "context_recall": 0.5,
+      "faithfulness": 1.0
+    },
+    {
+      "question": "What are the causes of preeclampsia?",
+      "answer": "Gestational hypertension, superimposed on chronic hypertension, and new-onset hypertension during pregnancy.",
+      "contexts": "['1192 Medical and Surgical Complications SECTION 12 Preeclampsia Syndrome In reproductive-age women, a significant pro- portion of pregnancy-related ischemic strokes are caused by gestational hypertension and pre- eclampsia syndrome (Jeng, 2004). As shown in Figure 60-1, areas of subcortical perivascular edema and petechial hemorrhage may prog- ress to cerebral infarction (Aukes, 2007, 2009; Zeeman'\n '516). Pulmonary Edema Women with severe preeclampsia-eclampsia who develop pul- monary edema most often do so postpartum (Cunningham, 1986, 2012; Zinaman, 1985). With pulmonary edema in the eclamptic woman, aspiration of gastric contents, which may be the result of convulsions, anesthesia, or overse- dation, should be excluded. As discussed in Chapter 47 (p. 942), there are three common causes of '\n 'Of these disorders, the preeclampsia syndrome, either alone or superimposed on chronic hypertension, is the most dangerous. As subsequently discussed, new-onset hypertension during pregnancy\u2014termed gestational hypertension\u2014is followed by signs and symptoms of preeclampsia almost half the time, and preeclampsia is identi- fied in 3.9 percent of all pregnancies (Martin, 2012). The World Health Organ'\n 'Am J Obstet Gynecol 204(3):193, 2011 Brown CEL, Cunningham FG, Pritchard JA: Convulsions in hypertensive, proteinuric primiparas more than 24 hours after delivery: eclampsia or some other cause? J Reprod Med 32:499, 1987 Brown MA, Gallery EDM, Ross MR, et al: Sodium excretion in normal and hyper- tensive pregnancy: a prospective study. Am J Obstet Gynecol 159:297, 1988 Brown MA, Zammit VC, Lowe SA']",
+      "ground_truth": "placental dysfunction, abnormal trophoblast invasion, hypertension, proteinuria, endothelial dysfunction",
+      "answer_relevancy": 0.7170569720106892,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.8,
+      "faithfulness": 1.0
+    },
+    {
+      "question": "What are the diagnostic criteria for PCOS?",
+      "answer": "Amenorrhoea/oligomenorrhea, clinical or biochemical hyperandrogenism, polycystic ovaries on ultrasound.",
+      "contexts": "['See the images below. Diagnostic criteria A 1990 expert conference sponsored by the National Institute of Child Health and Human Disease (NICHD) of the United States National Institutes of Health (NIH) proposed the following criteria for the diagnosis of PCOS: Oligo-ovulation or anovulation manifested by oligomenorrhea or amenorrhea Hyperandrogenism (clinical evidence of androgen excess) or hypera'\n '\u2022 May be asymptomatic. Diagnosis Patients must have two out of the three features below: \u2022 Amenorrhoea/oligomenorrhoea. \u2022 Clinical or biochemical hyperandrogenism. \u2022 Polycystic ovaries on ultrasound. The ultrasound criteria for the diagnosis of a polycystic ovary are eight or more subcapsular follicular cysts <10 mm in diameter and increased ovarian stroma. While these findings support a diagnosis'\n 'We enrolled 12 women in this study (Fig. 1e), 8 women with PCOS (PCOS group) and 4 body mass index- and age-matched healthy women (control group). The subjects\u2019 characteristics are provided in Table S1. This is a prospective study. A total of 20 samples were screened during the two-month period and the exclu- sion criteria were as follows: (1) diagnosed with other endocrine system diseases, such a'\n 'Journal of Ovarian Research (2024) 17:38 Introduction Polycystic ovary syndrome (PCOS) is a widespread het- erogeneous endocrine and metabolic disease affecting 7%-12% reproductive-age women globally affected by the applied criteria [1, 2]. As defined by the well accepted diagnostic criteria Rotterdam Standard, patients with two of the three syndrome including hyperandrogenism, ovu- latory dysfunc']",
+      "ground_truth": "oligomenorrhea, hyperandrogenism, polycystic ovaries on ultrasound, two out of three Rotterdam criteria",
+      "answer_relevancy": 0.9479817491422434,
+      "context_precision": 0.999999999975,
+      "context_recall": 0.75,
+      "faithfulness": 1.0
     }
   ]
 }
