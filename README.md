@@ -26,7 +26,8 @@ medical_embeddings_project/
 ├── query.py              # Interactive CLI script for querying the database
 ├── chatbot.py            # RAG chatbot (retrieval + LLM answer generation)
 ├── app.py                # Streamlit web UI for querying
-├── evaluate.py           # Evaluation metrics script
+├── evaluate.py           # Standard retrieval evaluation script
+├── evaluate_ragas.py     # RAGAS framework evaluation with local Ollama
 ├── requirements.txt      # Project dependencies
 ├── .gitignore           # Git ignore patterns
 ├── data/                 # Raw data directory
@@ -113,8 +114,15 @@ streamlit run app.py
 ```
 
 ### Step 5: Evaluate Retrieval Performance
+
+**Standard Metrics (Recall, Precision, MRR, NDCG):**
 ```bash
 python evaluate.py
+```
+
+**RAGAS Metrics (Answer Relevancy, Proper Faithfulness via NLI):**
+```bash
+python evaluate_ragas.py
 ```
 
 ## ⚙️ Configuration
@@ -144,7 +152,7 @@ export LLM_MODEL=llama3.1:8b
 export OLLAMA_BASE_URL=http://localhost:11434
 export LLM_TEMPERATURE=0.3
 export LLM_MAX_TOKENS=1024
-export RAG_TOP_K=5
+export RAG_TOP_K=4
 ```
 
 ## 📊 Evaluation
