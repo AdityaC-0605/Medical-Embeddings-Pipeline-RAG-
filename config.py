@@ -4,23 +4,22 @@ from pathlib import Path
 # Disable telemetry
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
 
-# ---------------- CORE SETTINGS ----------------
+# Embedding
 EMBED_MODEL = "BAAI/bge-large-en-v1.5"
+
+# Vector DB
 COLLECTION_NAME = "medical_bge"
 CHROMA_PATH = "chroma_db"
 
-# Available domains for the UI selectbox
-DOMAINS = ["cardiac", "gynae"]
-
-# LLM Settings
-LLM_MODEL = "llama3.1:8b"        # Used by the Chatbot
-RAGAS_LLM_MODEL = "llama3.1:8b"  # Used by the Evaluation script
+# Ollama
 OLLAMA_BASE_URL = "http://localhost:11434"
+LLM_MODEL = "llama3.1:8b"
 
-# Retrieval Settings
-RAG_TOP_K = 5
+# App
+DOMAINS = ["cardiac", "gynae"]
+RAG_TOP_K = 4
 
-# ---------------- DIRECTORIES ----------------
+# Directories
 def ensure_dirs():
     Path("data").mkdir(exist_ok=True)
     Path(CHROMA_PATH).mkdir(exist_ok=True)
