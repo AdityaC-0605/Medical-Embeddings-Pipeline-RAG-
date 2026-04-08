@@ -12,7 +12,6 @@ REFERENCES_PATTERN = re.compile(r"^\s*References\s*$", re.MULTILINE)
 
 fitz.TOOLS.mupdf_display_errors(False)
 
-
 def clean_text(text):
     text = re.sub(r"\S+@\S+", "", text)
     text = re.sub(r"doi:\S+", "", text, flags=re.IGNORECASE)
@@ -24,16 +23,13 @@ def clean_text(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-
 def is_quality_chunk(text, min_length=100):
-    """Check if a chunk has meaningful content (not just dots, dashes, numbers, etc.)"""
     if len(text) < min_length:
         return False
     alpha_chars = sum(1 for c in text if c.isalpha())
     if len(text) == 0 or alpha_chars / len(text) < 0.3:
         return False
     return True
-
 
 def extract_text_from_pdf(pdf_path):
     try:
@@ -50,7 +46,6 @@ def extract_text_from_pdf(pdf_path):
     except Exception as e:
         logger.error(f"Error reading {pdf_path}: {e}")
         return ""
-
 
 def chunk_text(text, chunk_size, overlap):
     sentences = re.split(r"(?<=[.!?])\s+", text)
@@ -76,14 +71,11 @@ def chunk_text(text, chunk_size, overlap):
         else:
             current_chunk = (current_chunk + " " + sentence).strip()
 
-    # FIX: was min_length=300, which silently dropped valid short concluding
-    # paragraphs. Now consistent with the body chunk threshold of 100.
     chunk = current_chunk.strip()
     if is_quality_chunk(chunk, min_length=100):
         chunks.append(chunk)
 
     return chunks
-
 
 def get_existing_chunks():
     if os.path.exists(CHUNKS_FILE):
@@ -95,10 +87,8 @@ def get_existing_chunks():
             return []
     return []
 
-
 def get_processed_files(existing_chunks):
     return set(chunk.get("source") for chunk in existing_chunks if "source" in chunk)
-
 
 def process_pdfs(incremental=True):
     existing_chunks = get_existing_chunks() if incremental else []
@@ -138,7 +128,6 @@ def process_pdfs(incremental=True):
 
     return all_chunks, new_files_count
 
-
 def main():
     import argparse
 
@@ -161,7 +150,6 @@ def main():
 
     logger.info(f"Done. Processed {new_files_count} new files.")
     logger.info(f"Saved {len(all_chunks)} total chunks to {CHUNKS_FILE}")
-
 
 if __name__ == "__main__":
     main()

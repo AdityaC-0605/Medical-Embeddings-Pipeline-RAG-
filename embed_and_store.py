@@ -15,10 +15,8 @@ from logger import setup_logger
 
 logger = setup_logger(__name__)
 
-
 def compute_text_hash(text):
     return hashlib.sha256(text.encode()).hexdigest()
-
 
 def get_existing_document_hashes(collection):
     try:
@@ -32,7 +30,6 @@ def get_existing_document_hashes(collection):
     except Exception as e:
         logger.warning(f"Could not fetch existing hashes: {e}")
     return set()
-
 
 def deduplicate_chunks(chunks, existing_hashes=None):
     if existing_hashes is None:
@@ -54,7 +51,6 @@ def deduplicate_chunks(chunks, existing_hashes=None):
 
     return unique_chunks
 
-
 def load_chunks():
     if not os.path.exists(CHUNKS_FILE):
         logger.error(f"Chunks file not found: {CHUNKS_FILE}")
@@ -73,7 +69,6 @@ def load_chunks():
         return None
 
     return chunks
-
 
 def main():
     logger.info("Starting embedding storage process")
@@ -109,8 +104,8 @@ def main():
         logger.info("No new chunks to add. Database is up to date.")
         return
 
-    instruction = "Represent this sentence for searching relevant passages: "
-    texts = [instruction + chunk["text"] for chunk in new_chunks]
+    # FIX: BGE Models strictly require documents to have NO PREFIX in the database!
+    texts = [chunk["text"] for chunk in new_chunks]
 
     logger.info("Generating embeddings...")
     embeddings = model.encode(
@@ -120,12 +115,6 @@ def main():
         show_progress_bar=True,
     )
 
-    # FIX: use text_hash as the ID instead of a positional integer.
-    # The old approach (existing_count + i) caused ID collisions when
-    # re-running the script after deleting some documents, because
-    # existing_count would be lower than the highest stored ID.
-    # Using the hash makes every ID globally unique and makes upsert
-    # fully idempotent — running the script twice never creates duplicates.
     ids = [chunk["text_hash"] for chunk in new_chunks]
 
     batch_size = 1000
@@ -151,7 +140,6 @@ def main():
         logger.info(f"Stored batch {i} → {batch_end}")
 
     logger.info(f"Successfully stored {total} new embeddings")
-
 
 if __name__ == "__main__":
     main()
