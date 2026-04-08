@@ -72,38 +72,25 @@ GROUND_TRUTH = {
     "What is the WHO's programme of work on sexual and reproductive health and rights?": ["who.pdf"],
 }
 
-
 def compute_recall_at_k(retrieved_sources, relevant_sources, k=5):
     retrieved = set(retrieved_sources[:k])
     relevant = set(relevant_sources)
-
-    if not relevant:
-        return 0.0
-
+    if not relevant: return 0.0
     hits = len(retrieved.intersection(relevant))
     return hits / len(relevant)
-
 
 def compute_precision_at_k(retrieved_sources, relevant_sources, k=5):
     retrieved = set(retrieved_sources[:k])
     relevant = set(relevant_sources)
-
-    if not retrieved:
-        return 0.0
-
+    if not retrieved: return 0.0
     hits = len(retrieved.intersection(relevant))
     return hits / k
 
-
 def compute_mrr(retrieved_sources, relevant_sources):
     relevant = set(relevant_sources)
-
     for i, source in enumerate(retrieved_sources, 1):
-        if source in relevant:
-            return 1.0 / i
-
+        if source in relevant: return 1.0 / i
     return 0.0
-
 
 def compute_ndcg(retrieved_docs, relevant_docs, k=5):
     relevant = set(relevant_docs)
@@ -113,26 +100,19 @@ def compute_ndcg(retrieved_docs, relevant_docs, k=5):
         if doc in relevant and doc not in seen_relevant:
             dcg += 1.0 / math.log2(i + 1)
             seen_relevant.add(doc)
-
-    ideal = sum(
-        1.0 / math.log2(i + 1)
-        for i in range(1, min(len(relevant_docs), k) + 1)
-    )
-
+    ideal = sum(1.0 / math.log2(i + 1) for i in range(1, min(len(relevant_docs), k) + 1))
     return dcg / ideal if ideal > 0 else 0.0
-
 
 def evaluate_retrieval(model, collection, queries, domain=None, k=5):
     results = {"recall_at_k": [], "precision_at_k": [], "mrr": [], "ndcg": []}
-
-    # Build set of queries belonging to target domain using EVAL_QUERIES
     domain_queries = set(EVAL_QUERIES.get(domain, [])) if domain else None
 
     for query, relevant_sources in queries.items():
         if domain_queries is not None and query not in domain_queries:
             continue
 
-        query_instruction = "Represent this medical question for retrieval: "
+        # FIX: Correct BGE query prefix
+        query_instruction = "Represent this sentence for searching relevant passages: "
         query_embedding = model.encode(
             query_instruction + query, normalize_embeddings=True
         )
@@ -151,12 +131,8 @@ def evaluate_retrieval(model, collection, queries, domain=None, k=5):
 
         retrieved_sources = [m.get("source", "") for m in retrieved["metadatas"][0]]
 
-        results["recall_at_k"].append(
-            compute_recall_at_k(retrieved_sources, relevant_sources, k)
-        )
-        results["precision_at_k"].append(
-            compute_precision_at_k(retrieved_sources, relevant_sources, k)
-        )
+        results["recall_at_k"].append(compute_recall_at_k(retrieved_sources, relevant_sources, k))
+        results["precision_at_k"].append(compute_precision_at_k(retrieved_sources, relevant_sources, k))
         results["mrr"].append(compute_mrr(retrieved_sources, relevant_sources))
         results["ndcg"].append(compute_ndcg(retrieved_sources, relevant_sources, k))
 
@@ -164,7 +140,6 @@ def evaluate_retrieval(model, collection, queries, domain=None, k=5):
         metric: sum(values) / len(values) if values else 0
         for metric, values in results.items()
     }
-
 
 def main():
     logger.info("Starting evaluation")
@@ -189,12 +164,12 @@ def main():
     print("MEDICAL RAG EVALUATION REPORT")
     print("=" * 60)
 
-    all_metrics = evaluate_retrieval(model, collection, GROUND_TRUTH, k=5)
-    print(f"\nOverall Metrics (k=5):")
-    print(f"  Recall@5:    {all_metrics['recall_at_k']:.4f}")
-    print(f"  Precision@5: {all_metrics['precision_at_k']:.4f}")
+    all_metrics = evaluate_retrieval(model, collection, GROUND_TRUTH, k=7)
+    print(f"\nOverall Metrics (k=7):")
+    print(f"  Recall@7:    {all_metrics['recall_at_k']:.4f}")
+    print(f"  Precision@7: {all_metrics['precision_at_k']:.4f}")
     print(f"  MRR:         {all_metrics['mrr']:.4f}")
-    print(f"  NDCG@5:      {all_metrics['ndcg']:.4f}")
+    print(f"  NDCG@7:      {all_metrics['ndcg']:.4f}")
 
     print("\n" + "-" * 60)
     print("Per-Domain Metrics:")
@@ -203,14 +178,14 @@ def main():
     domain_results = {}
     for domain in DOMAINS:
         domain_metrics = evaluate_retrieval(
-            model, collection, GROUND_TRUTH, domain=domain, k=5
+            model, collection, GROUND_TRUTH, domain=domain, k=7
         )
         domain_results[domain] = domain_metrics
         print(f"\n{domain.upper()}:")
-        print(f"  Recall@5:    {domain_metrics['recall_at_k']:.4f}")
-        print(f"  Precision@5: {domain_metrics['precision_at_k']:.4f}")
+        print(f"  Recall@7:    {domain_metrics['recall_at_k']:.4f}")
+        print(f"  Precision@7: {domain_metrics['precision_at_k']:.4f}")
         print(f"  MRR:         {domain_metrics['mrr']:.4f}")
-        print(f"  NDCG@5:      {domain_metrics['ndcg']:.4f}")
+        print(f"  NDCG@7:      {domain_metrics['ndcg']:.4f}")
 
     print("\n" + "=" * 60)
 
@@ -228,7 +203,6 @@ def main():
         )
 
     logger.info(f"Results saved to {output_file}")
-
 
 if __name__ == "__main__":
     main()
